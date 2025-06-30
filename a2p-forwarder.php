@@ -48,6 +48,14 @@ add_action('admin_post_a2p_forward',     'a2p_handle_forward');
  */
 function a2p_handle_forward()
 {
+
+    if (
+        ! isset($_POST['forum_form_nonce']) ||
+        ! wp_verify_nonce($_POST['forum_form_nonce'], 'submit_forum_form_action')
+    ) {
+        // Invalid request — handle it securely
+        return wp_send_json_error("Security check failed. Please try again.");
+    }
     // a) Read POST fields from FormData
     $companyName    = isset($_POST['CompanyName'])    ? sanitize_text_field(wp_unslash($_POST['CompanyName']))     : '';
     $fullName      = isset($_POST['FullName'])      ? sanitize_text_field(wp_unslash($_POST['FullName']))       : '';
