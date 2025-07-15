@@ -43,11 +43,42 @@ if (! defined('A2P_RECAPTCHA_ENDPOINT')) {
 add_action('admin_post_nopriv_a2p_forward', 'a2p_handle_forward');
 add_action('admin_post_a2p_forward',     'a2p_handle_forward');
 
+
+function a2p_is_rate_limited($ip, $limit = 5, $minutes = 5)
+{
+    $key = 'a2p_rate_' . md5($ip);
+    $requests = get_transient($key);
+    $now = time();
+
+    if (!is_array($requests)) {
+        $requests = [];
+    }
+
+    // Remove timestamps older than $minutes
+    $requests = array_filter($requests, function ($timestamp) use ($now, $minutes) {
+        return $timestamp > ($now - ($minutes * 60));
+    });
+
+    if (count($requests) >= $limit) {
+        return true;
+    }
+
+    $requests[] = $now;
+    set_transient($key, $requests, $minutes * 60);
+    return false;
+}
+
 /**
  * 3) Handler: verify reCAPTCHA, then forward to CRM.
  */
 function a2p_handle_forward()
 {
+
+    $ip = $_SERVER['REMOTE_ADDR'];
+
+    if (a2p_is_rate_limited($ip)) {
+        return wp_send_json_error('Too many submissions. Please try again later.', 429);
+    }
 
     if (
         ! isset($_POST['forum_form_nonce']) ||
