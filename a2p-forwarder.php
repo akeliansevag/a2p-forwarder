@@ -25,7 +25,7 @@ if (! defined('A2P_HMAC_SECRET')) {
 
 
 if (! defined('A2P_CRM_ENDPOINT')) {
-    define('A2P_CRM_ENDPOINT', 'https://digital-services-api-software-qa.montylocal.net/api-gateway/crm-middleware/api/v1/EsimA2P');
+    define('A2P_CRM_ENDPOINT', 'https://digital-services-api-software-qa-public.montylocal.net/api-gateway/crm-middleware/api/v1/EsimA2P');
 }
 
 // Real reCAPTCHA secret key (must match the site key you used on the page, and that key must be allowed for localhost)
